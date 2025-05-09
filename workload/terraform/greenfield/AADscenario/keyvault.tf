@@ -18,22 +18,22 @@ module "avm-res-keyvault-vault" {
     }
   }
 
-  public_network_access_enabled = true
-  private_endpoints = {
-    primary = {
-      private_dns_zone_resource_ids = [data.azurerm_private_dns_zone.pe-vaultdns-zone.id]
-      subnet_resource_id            = data.azurerm_subnet.pesubnet.id
-    }
-  }
+  # public_network_access_enabled = false # true
+  # private_endpoints = {
+  #   primary = {
+  #     # private_dns_zone_resource_ids = [data.azurerm_private_dns_zone.pe-vaultdns-zone.id]
+  #     # subnet_resource_id            = data.azurerm_subnet.pesubnet.id
+  #   }
+  # }
 
-  network_acls = {
-    bypass         = "AzureServices"
-    default_action = "Deny"
-    ip_rules       = ["136.28.83.128"]
-    virtual_network_subnet_ids = [
-      data.azurerm_subnet.pesubnet.id
-    ]
-  }
+  # network_acls = {
+  #   bypass         = "AzureServices"
+  #   default_action = "Deny"
+  #   ip_rules       = ["136.28.83.128"]
+  #   # virtual_network_subnet_ids = [
+  #   #   data.azurerm_subnet.pesubnet.id
+  #   # ]
+  # }
 
   keys = {
     cmk_for_storage_account = {

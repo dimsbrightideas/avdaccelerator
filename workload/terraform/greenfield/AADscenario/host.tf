@@ -48,13 +48,13 @@ resource "azurerm_windows_virtual_machine" "avd_vm" {
     storage_account_type = "Standard_LRS"
   }
   # To use marketplace image, uncomment the following lines and comment the source_image_id line
-  source_image_reference {
-    offer     = var.offer
-    publisher = var.publisher
-    sku       = var.sku
-    version   = "latest"
-  }
-  /*
+  # source_image_reference {
+  #   offer     = var.offer
+  #   publisher = var.publisher
+  #   sku       = var.sku
+  #   version   = "latest"
+  # }
+
   //source_image_id = data.azurerm_shared_image.avd.id
   source_image_id = "/subscriptions/${var.avdshared_subscription_id}/resourceGroups/${var.image_rg}/providers/Microsoft.Compute/galleries/${var.gallery_name}/images/${var.image_name}/versions/latest"
   depends_on = [
@@ -63,7 +63,6 @@ resource "azurerm_windows_virtual_machine" "avd_vm" {
     azurerm_resource_group.rg,
     module.avm_res_desktopvirtualization_hostpool
   ]
-*/
   identity {
     type = "SystemAssigned"
   }

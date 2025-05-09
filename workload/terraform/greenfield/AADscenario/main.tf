@@ -1,4 +1,5 @@
 # Creates the Azure Virtual Desktop Spoke Network resources
+
 module "network" {
   source                   = "../../modules/network"
   avdLocation              = var.avdLocation

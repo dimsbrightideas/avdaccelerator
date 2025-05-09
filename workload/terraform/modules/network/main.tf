@@ -1,3 +1,26 @@
+resource "azurerm_virtual_network" "hub_vnet" {
+  name                = "${var.hub_vnet}-${substr(var.avdLocation, 0, 5)}-${var.prefix}-001"
+  address_space       = var.vnet_range
+  location            = azurerm_resource_group.net.location
+  resource_group_name = azurerm_resource_group.hub_net.name
+  tags                = local.tags
+  lifecycle { ignore_changes = [tags] }
+
+  depends_on = [azurerm_resource_group.hub_net]
+}
+
+resource "azurerm_virtual_network" "ide_vnet" {
+  name                = "infra-network"
+  address_space       = var.vnet_range
+  location            = azurerm_resource_group.net.location
+  resource_group_name = azurerm_resource_group.ide_net.name
+  tags                = local.tags
+  lifecycle { ignore_changes = [tags] }
+
+  depends_on = [azurerm_resource_group.ide_net]
+}
+
+
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.vnet}-${substr(var.avdLocation, 0, 5)}-${var.prefix}-001"
   address_space       = var.vnet_range
@@ -10,21 +33,21 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 resource "azurerm_subnet" "subnet" {
-  name                                      = "${var.snet}-${substr(var.avdLocation, 0, 5)}-${var.prefix}-001"
-  resource_group_name                       = "rg-avd-${substr(var.avdLocation, 0, 5)}-${var.prefix}-${var.rg_network}"
-  virtual_network_name                      = azurerm_virtual_network.vnet.name
-  address_prefixes                          = var.subnet_range
-  depends_on                                = [azurerm_resource_group.net]
+  name                 = "${var.snet}-${substr(var.avdLocation, 0, 5)}-${var.prefix}-001"
+  resource_group_name  = "rg-avd-${substr(var.avdLocation, 0, 5)}-${var.prefix}-${var.rg_network}"
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = var.subnet_range
+  depends_on           = [azurerm_resource_group.net]
 }
 
 resource "azurerm_subnet" "pesubnet" {
-  name                                      = "${var.pesnet}-${substr(var.avdLocation, 0, 5)}-${var.prefix}-001"
-  resource_group_name                       = "rg-avd-${substr(var.avdLocation, 0, 5)}-${var.prefix}-${var.rg_network}"
-  virtual_network_name                      = azurerm_virtual_network.vnet.name
-  address_prefixes                          = var.pesubnet_range
+  name                              = "${var.pesnet}-${substr(var.avdLocation, 0, 5)}-${var.prefix}-001"
+  resource_group_name               = "rg-avd-${substr(var.avdLocation, 0, 5)}-${var.prefix}-${var.rg_network}"
+  virtual_network_name              = azurerm_virtual_network.vnet.name
+  address_prefixes                  = var.pesubnet_range
   private_endpoint_network_policies = "Enabled"
-  service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
-  depends_on                                = [azurerm_resource_group.net]
+  service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
+  depends_on                        = [azurerm_resource_group.net]
 }
 
 resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
@@ -46,7 +69,7 @@ resource "azurerm_virtual_network_peering" "peer1" {
   provider                     = azurerm.spoke
 
   depends_on = [
-    azurerm_virtual_network.vnet, azurerm_resource_group.net, azurerm_subnet.subnet
+    azurerm_virtual_network.vnet, azurerm_resource_group.net, azurerm_subnet.subnet, azurerm_virtual_network.hub_vnet, azurerm_resource_group.hub_net
   ]
 }
 
@@ -85,7 +108,7 @@ resource "azurerm_virtual_network_peering" "peer2" {
 }
 
 resource "azurerm_virtual_network_peering" "peer3" {
-    count = local.use_same_hub_identity_vnet ? 0 : 1
+  count = local.use_same_hub_identity_vnet ? 0 : 1
 
   name                         = "peer_${var.prefix}_identity_avdspoke"
   resource_group_name          = var.identity_rg

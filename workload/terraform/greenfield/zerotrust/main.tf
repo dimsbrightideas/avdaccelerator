@@ -31,8 +31,6 @@ module "network" {
   identity_vnet            = var.identity_vnet
 }
 
-
-
 # Optional - creates AVD hostpool, remote application group, and workspace for remote apps
 # Uncomment out if needed - this is a separate module from the desktop one above
 # Remove /* at beginning and */ at the end to uncomment out the entire module
